@@ -1,0 +1,9 @@
+note over browser:
+user enters text into text field and hits submit
+end note
+note over browser:
+JavaScript Event handler creates a new note, pushes it to the notes list
+end note
+browser->browser: New note pushed to notes list
+browser->server: HTTP POST JSON Requent Payload https://fullstack-exampleapp.herokuapp.com/new_note_spa
+server-->browser: 201 Created Response
