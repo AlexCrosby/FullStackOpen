@@ -1,9 +1,8 @@
 import React from "react";
-const Error = ({message}) => {
+const Error = ({message,color}) => {
 
 
-const errorStyle={
-        color: 'green',
+let errorStyle={
         background: 'lightgrey',
         fontSize: '20',
         borderStyle: 'solid',
@@ -16,6 +15,9 @@ const errorStyle={
     if (message === null) {
         return null
     } else {
+        if (color==='green'){
+        errorStyle.color='green'}
+        else{errorStyle.color='red'}
         return (
             <div style={errorStyle}>
                 {message}

@@ -10,7 +10,8 @@ const App = () => {
         [newName, setNewName] = useState(''),
         [newNumber, setNewNumber] = useState(''),
         [newFilter, setNewFilter] = useState(''),
-        [newErrorMessage, setNewErrorMessage]=useState(null)
+        [ErrorMessage, setErrorMessage] = useState(null),
+        [errorColor, setErrorColor] = useState('red')
 
 
     useEffect(() => {
@@ -20,7 +21,6 @@ const App = () => {
 
     const addName = (event) => {
         event.preventDefault()
-        console.log('add button clicked')
         if (persons.filter(person => person.name.toLowerCase() === newName.toLowerCase()).length > 0) {
             const updateCheck = window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)
 
@@ -29,18 +29,38 @@ const App = () => {
                 personToUpdate = {...personToUpdate, number: newNumber}
                 numberService.update(personToUpdate).then(() => {
                     setPersons(persons.map(p => p.name === newName ? personToUpdate : p))
-                    setNewErrorMessage(`Updated ${newName}`)
+                    setErrorColor('green')
+                    setErrorMessage(`Updated ${newName}`)
+                    setTimeout(() => {
+                        setErrorMessage(null)
+                    }, 5000)
+                }).catch(error => {
+                    setErrorColor('red')
+                    setErrorMessage(`Information of ${newName} has already been removed from server`)
+                    setTimeout(() => {
+                        setErrorMessage(null)
+                    }, 5000)
+
                 })
 
             }
 
 
         } else {
-            // setPersons(persons.concat({name: newName, number: newNumber}))
             const newPerson = {name: newName, number: newNumber}
-            numberService.addNew(newPerson).then(data => setPersons(persons.concat(data)))
-            setNewErrorMessage(`Added ${newName}`)
-            console.log(newErrorMessage)
+            numberService.addNew(newPerson).then(data => {
+                setPersons(persons.concat(data))
+                setErrorColor('green')
+                setErrorMessage(`Added ${newName}`)
+            })
+                .catch(error => {
+                    setErrorColor('red')
+                    setErrorMessage(error.response.data.error)
+
+                })
+            setTimeout(() => {
+                setErrorMessage(null)
+            }, 5000)
         }
         setNewName('')
         setNewNumber('')
@@ -59,17 +79,17 @@ const App = () => {
     }
 
     const deletePerson = (person) => {
-        numberService.deleteName(person).then(() => setPersons(persons.filter(p => {
+        numberService.deleteName(person)
+            .then(() => setPersons(persons.filter(p => {
                 return p.id !== person.id
-            }))
-        )
+            })))
 
     }
 
     return (
         <div>
             <h2>Phonebook</h2>
-            <Error message={newErrorMessage}/>
+            <Error message={ErrorMessage} color={errorColor}/>
             <Filter handleFilterChange={handleFilterChange}/>
             <h3>Add a new</h3>
             <AddNew handleNameChange={handleNameChange}
